@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, validationResult } from "express-validator";
 
 // email validator
 export const validateSignIn = () => [
@@ -12,3 +12,11 @@ export const stringValidator = () => [
   body("email").notEmpty().escape().trim().isEmail(),
   body("password").notEmpty().escape().trim().isLength({ min: 8, max: 100 }),
 ];
+
+export const checker = (req, res) => {
+  const e = validationResult(req);
+  console.log(e);
+  if (!e.isEmpty()) {
+    return res.status(422).json({ errors: e.array });
+  }
+};

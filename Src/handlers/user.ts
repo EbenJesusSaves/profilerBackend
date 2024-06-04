@@ -2,8 +2,9 @@ import * as dotenv from "dotenv";
 import { comparePassword, createJWTToken, hashPassword } from "../auth/auth";
 import pg from "pg";
 import { validationResult } from "express-validator";
+import { checker } from "../middlewares/authChecks";
 dotenv.config();
-const pool = new pg.Pool({
+export const pool = new pg.Pool({
   connectionString: process.env.connectionString,
 });
 
@@ -15,11 +16,7 @@ pool.query("SELECT NOW()", (err, res) => {
   }
 });
 export const signUp = async (req, res) => {
-  const e = validationResult(req);
-  console.log(e);
-  if (!e.isEmpty()) {
-    return res.status(422).json({ errors: e.array });
-  }
+  checker(req, res);
 
   const { username, password, email } = req.body;
   const ps = await hashPassword(password);
@@ -59,6 +56,7 @@ export const signUp = async (req, res) => {
 };
 
 export const signIn = async (req, res, next) => {
+  checker(req, res);
   try {
     const { rows } = await pool.query(
       `SELECT * FROM users WHERE username =$1;`,

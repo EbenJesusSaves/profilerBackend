@@ -1,7 +1,8 @@
 import express from "express";
 import router from "../Routers/router";
 import { signIn, signUp } from "../handlers/user";
-import { stringValidator } from "../middlewares/authChecks";
+import { stringValidator, validateSignIn } from "../middlewares/authChecks";
+import { protect } from "../handlers/protectRoutes";
 
 const app = express();
 
@@ -14,5 +15,5 @@ app.get("/", (req, res) => {
 export default app;
 
 app.post("/createuser", stringValidator(), signUp);
-app.post("/signin", signIn);
-app.use("/user", router);
+app.post("/signin", validateSignIn(), signIn);
+app.use("/admin", protect, router);
