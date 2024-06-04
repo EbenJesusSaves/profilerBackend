@@ -1,6 +1,7 @@
 import express from "express";
 import router from "../Routers/router";
-import { signUp } from "../handlers/user";
+import { signIn, signUp } from "../handlers/user";
+import { stringValidator } from "../middlewares/authChecks";
 
 const app = express();
 
@@ -12,5 +13,6 @@ app.get("/", (req, res) => {
 
 export default app;
 
-app.post("/createuser", signUp);
+app.post("/createuser", stringValidator(), signUp);
+app.post("/signin", signIn);
 app.use("/user", router);
