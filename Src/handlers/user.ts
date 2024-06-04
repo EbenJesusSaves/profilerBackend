@@ -1,42 +1,47 @@
+import * as dotenv from "dotenv";
 import { comparePassword, createJWTToken, hashPassword } from "../auth/auth";
 import pg from "pg";
-
+dotenv.config();
 const pool = new pg.Pool({
   connectionString: process.env.connectionString,
 });
 
+pool.query("SELECT NOW()", (err, res) => {
+  if (err) {
+    console.error("Error executing query", err.stack);
+  } else {
+    console.log("Connected successfully", res.rows[0]);
+  }
+});
 export const signUp = async (req, res) => {
-  const { username, password, email, id, profile } = req.body;
+  const { username, password, email } = req.body;
   const ps = await hashPassword(password);
-
   try {
     const { rows } = await pool.query(
       `
-        INSERT INTO userprofile
-        (
-            username,
-            email,
-            profile,
-            password
-        )
-        VALUES
-        (
-            $1,
-            $2,
-            $3,
-            $4
-        )
-        RETURNING *
-        ;
-    `,
-      [username, email, profile, ps]
+    INSERT INTO users
+    (
+        email,
+        username,
+        password
+    )
+    VALUES
+    (
+        $1,
+        $2,
+        $3
+    )
+    RETURNING *
+    ;
+`,
+      [email, username, ps]
     );
+
     const token = createJWTToken(rows[0]);
     res.status(200).json({
       data: {
         username: rows[0].username,
         email: rows[0].email,
-        profile: rows[0].profile,
         token,
       },
     });
@@ -48,7 +53,7 @@ export const signUp = async (req, res) => {
 export const signIn = async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      ` SELECT * FROM userprofile WHERE username =$1;`,
+      `SELECT * FROM userprofile WHERE username =$1;`,
       [req.body.username]
     );
 
