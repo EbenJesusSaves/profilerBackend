@@ -33,25 +33,25 @@ export const protect = (req, res, next) => {
   }
 };
 
-export const protectRoutes = async (req, res, next) => {
-  const bearer = req.headers.authorization;
-  if (!bearer) {
-    // do some staff
-  }
-  const [, token] = bearer;
+// export const protectRoutes = async (req, res, next) => {
+//   const bearer = req.headers.authorization;
+//   if (!bearer) {
+//     // do some staff
+//   }
+//   const [, token] = bearer;
 
-  if (!token) {
-    // do something and reject them
-  }
+//   if (!token) {
+//     // do something and reject them
+//   }
 
-  if (token) {
-    const user = jwt.verify(token, env.JWT_TOKEN);
-    if (user) {
-      // do something and call next
-      next();
-    } else {
-      //do something and reject them
-      return;
-    }
-  }
-};
+//   if (token) {
+//     const user = jwt.verify(token, env.JWT_TOKEN);
+//     if (user) {
+//       // do something and call next
+//       next();
+//     } else {
+//       //do something and reject them
+//       return;
+//     }
+//   }
+// };
