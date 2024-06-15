@@ -8,7 +8,6 @@ import {
 
 const router = Router();
 
-router.get("/post/:id", getPost);
 router.post("/post", postContent);
 router.post("/post_comments", insertComment);
 export default router;
