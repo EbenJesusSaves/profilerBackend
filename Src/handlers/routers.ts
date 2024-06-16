@@ -114,6 +114,7 @@ export const getPost = async (req, res, next) => {
           body: row.body,
           image: row.image,
           tags: row.tags,
+          date: row.date,
           posted_by: row.posted_by,
         };
       }
