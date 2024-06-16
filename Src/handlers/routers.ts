@@ -1,7 +1,7 @@
 import { pool } from "./user";
 
 export const postContent = async (req, res, next) => {
-  const { title, body, image, tags } = req?.body;
+  const { title, body, image, tags, posted_by } = req?.body;
   try {
     const { rows } = await pool.query(
       `
@@ -10,19 +10,21 @@ export const postContent = async (req, res, next) => {
         title, 
         body, 
         tags, 
-        image
+        image, 
+        posted_by
     ) 
     VALUES 
     (
         $1, 
         $2, 
         $3, 
-        $4
+        $4,
+        $5
     ) 
     RETURNING *
     ;
     `,
-      [title, body, tags, image]
+      [title, body, tags, image, posted_by]
     );
 
     res.status(200).json({
@@ -31,6 +33,7 @@ export const postContent = async (req, res, next) => {
         body: rows[0]?.body,
         tags: rows[0]?.tags,
         image: rows[0]?.image,
+        posted_by: rows[0]?.posted_by,
       },
     });
   } catch (error) {
@@ -57,24 +60,26 @@ export const getPosts = async (req, res, next) => {
   }
 };
 export const insertComment = async (req, res, next) => {
-  const { post_id, body } = req?.body;
+  const { post_id, body, commented_by } = req?.body;
   try {
     const { rows } = await pool.query(
       `
       INSERT INTO  comments 
   (
         post_id, 
-        body  
+        body,
+        commented_by  
   )
       VALUES
   (
      $1, 
-     $2
+     $2,
+     $3
   )
      RETURNING *
 
  ;`,
-      [post_id, body]
+      [post_id, body, commented_by]
     );
     let data = rows;
     res.status(200).json({
@@ -89,7 +94,6 @@ export const insertComment = async (req, res, next) => {
 };
 export const getPost = async (req, res, next) => {
   const { id } = req?.params;
-  console.log(id, req?.params);
   try {
     const { rows } = await pool.query(
       `
@@ -110,12 +114,14 @@ export const getPost = async (req, res, next) => {
           body: row.body,
           image: row.image,
           tags: row.tags,
+          posted_by: row.posted_by,
         };
       }
       if (row.comments_body) {
         comments.push({
           body: row.comments_body,
           post_id: row.comment_post_id,
+          commented_by: row.commented_by,
         });
       }
     });
