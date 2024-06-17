@@ -4,7 +4,7 @@ import { signIn, signUp } from "../handlers/user";
 import { stringValidator, validateSignIn } from "../middlewares/authChecks";
 import { protect } from "../handlers/protectRoutes";
 import cors from "cors";
-import { getPost, getPosts } from "../handlers/routers";
+import { getPost, getPosts, insertComment } from "../handlers/routers";
 const app = express();
 
 app.use(express.json());
@@ -21,4 +21,5 @@ app.post("/createuser", stringValidator(), signUp);
 app.post("/signin", validateSignIn(), signIn);
 app.get("/posts", getPosts);
 app.get("/post/:id", getPost);
+app.post("/post_comments", insertComment);
 app.use("/admin", protect, router);
