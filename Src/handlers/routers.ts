@@ -97,7 +97,7 @@ export const getPost = async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `
-      SELECT  comments.body AS comments_body,content.*, comments.post_id as comment_post_id  
+      SELECT  comments.body AS comments_body,content.*, comments.post_id as comment_post_id, comments.commented_by  
       FROM content 
       LEFT JOIN comments ON content.id = comments.post_id 
       WHERE content.id = $1
