@@ -1,7 +1,6 @@
 import * as dotenv from "dotenv";
 import { comparePassword, createJWTToken, hashPassword } from "../auth/auth";
 import pg from "pg";
-import { validationResult } from "express-validator";
 import { checker } from "../middlewares/authChecks";
 dotenv.config();
 export const pool = new pg.Pool({
@@ -15,6 +14,7 @@ pool.query("SELECT NOW()", (err, res) => {
     console.log("Connected successfully", res.rows[0]);
   }
 });
+
 export const signUp = async (req, res) => {
   checker(req, res);
 
