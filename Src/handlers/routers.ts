@@ -1,3 +1,4 @@
+import { sendMail } from "./email/email";
 import { pool } from "./user";
 
 export const postContent = async (req, res, next) => {
@@ -43,6 +44,8 @@ export const postContent = async (req, res, next) => {
   }
 };
 export const getPosts = async (req, res, next) => {
+  console.log("hi");
+
   const { title, body, image, tags } = req?.body;
   try {
     const { rows } = await pool.query(
@@ -86,12 +89,12 @@ export const insertComment = async (req, res, next) => {
       data,
     });
   } catch (error) {
-    console.log(error);
     res.status(401).json({
       message: "Unable to comment try again",
     });
   }
 };
+
 export const getPost = async (req, res, next) => {
   const { id } = req?.params;
   try {
@@ -140,4 +143,11 @@ export const getPost = async (req, res, next) => {
       message: "something rent wrong",
     });
   }
+};
+
+export const emailNotification = async (req, res) => {
+  const { clientAccount, clientEmail, clientSubject } = req?.body;
+
+  await sendMail({ clientAccount, clientEmail, clientSubject });
+  res.status(200).json({ message: "email received successfully" });
 };
