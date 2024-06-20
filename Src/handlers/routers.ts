@@ -151,3 +151,201 @@ export const emailNotification = async (req, res) => {
   await sendMail({ clientAccount, clientEmail, clientSubject });
   res.status(200).json({ message: "email received successfully" });
 };
+
+// delete post
+export const deletePost = async (req, res) => {
+  const { id, posted_by } = req?.body;
+  try {
+    await pool.query(`DELETE FROM content where id= $1 AND posted_by = $2`, [
+      id,
+      posted_by,
+    ]);
+    res.status(204).json({ message: "post deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "something went wrong" });
+  }
+};
+
+// edit post
+export const editPost = async (req, res) => {
+  const { title, body, image, tags, id, posted_by } = req?.body;
+
+  try {
+    const { row } = await pool.query(
+      `
+  UPDATE content 
+    SET 
+      title = $2, 
+      tags = $3, 
+      image = $4, 
+      body = $5
+    WHERE id = $1 AND posted_by = $6
+  `,
+      [id, title, tags, image, body, posted_by]
+    );
+    res.status(200).json({ message: "post updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "something went wrong while updating contents" });
+  }
+};
+
+export const searchPost = async (req, res) => {
+  const { keyword } = req.body;
+
+  try {
+    const { row } = await pool.query(
+      `
+      SELECT * FROM content WHERE title ILIKE $1
+      `,
+      [`%${keyword}%`]
+    );
+
+    res.status(200).json({ row });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong on the server " });
+  }
+};
+
+// save to draft
+
+// delete comment
+export const deleteComment = async (req, res) => {
+  const { id, commented_by } = req.body || {};
+
+  try {
+    await pool.query(
+      `DELETE FORM comments WHERE id = $1 AND commented_by =$2 `,
+      [id, commented_by]
+    );
+    res.status(204).json({ message: "comment deleted successfully " });
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+};
+
+//============================ DRAFT POSTS ==========================//
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//                                                                   //
+//============================ =========== ==========================//
+
+export const postDraftPost = async (req, res, next) => {
+  const { title, body, image, tags, posted_by } = req?.body;
+  try {
+    const { rows } = await pool.query(
+      `
+    INSERT INTO draft_posts 
+      (
+        title, 
+        body, 
+        tags, 
+        image, 
+        created_by
+    ) 
+    VALUES 
+    (
+        $1, 
+        $2, 
+        $3, 
+        $4,
+        $5
+    ) 
+    RETURNING *
+    ;
+    `,
+      [title, body, tags, image, posted_by]
+    );
+
+    res.status(200).json({
+      data: {
+        title: rows[0]?.title,
+        body: rows[0]?.body,
+        tags: rows[0]?.tags,
+        image: rows[0]?.image,
+        posted_by: rows[0]?.posted_by,
+      },
+    });
+  } catch (error) {
+    res.status(401).json({
+      message: "something rent wrong",
+    });
+  }
+};
+
+export const getDraftPosts = async (req, res) => {
+  const { created_by, id } = req.body;
+  try {
+    const { row } = await pool.query(
+      `
+      SELECT * FROM draft_posts 
+         WHERE 
+           id = $1 
+          AND 
+          created_by = $2
+      `,
+      [id, created_by]
+    );
+    res.status(200).json({ data: row });
+  } catch (error) {
+    res.status(500).json({ message: "something went wrong" });
+  }
+};
+
+export const editDraftPost = async (req, res) => {
+  const { title, body, tags, image, created_by, id } = req.body;
+  try {
+    const { row } = await pool.query(
+      `
+      UPDATE draft_posts 
+        SET title = $3, 
+        body =$4, 
+        tags =$5, 
+        image = $6 
+      WHERE 
+        id = $1 AND created_by = $2 
+      RETURNING *
+    `,
+      [id, created_by, title, body, tags, image]
+    );
+
+    res.status(200).json({ message: "draft updated successfully", data: row });
+  } catch (error) {
+    res.status(500).json({ message: "Ops something went wrong" });
+  }
+};
+
+export const deleteDraft = async (req, res) => {
+  const { id, created_by } = req.body;
+  try {
+    await pool.query(
+      `
+      DELETE FROM draft_posts WHERE id = $1 AND created_by = $2
+      `,
+      [id, created_by]
+    );
+    res.status(204).json({ message: "draft deleted successfully " });
+  } catch (error) {
+    res.status(500).json({ message: "Sorry something went wrong  " });
+  }
+};
+
+// check if it has id then it's an update if
+// there is no Id then its new and about yet to be create
+
+// search for posts
+
+// UPDATE content SET body = $1, tags =$2, WHERE id = $3
+
+// dashboard for posts written
+
+//check if username is same as posted_by then show delete and edit functionality
