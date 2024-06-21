@@ -171,7 +171,7 @@ export const editPost = async (req, res) => {
   const { title, body, image, tags, id, posted_by } = req?.body;
 
   try {
-    const { row } = await pool.query(
+    const { rows } = await pool.query(
       `
   UPDATE content 
     SET 
@@ -194,22 +194,22 @@ export const editPost = async (req, res) => {
 
 export const searchPost = async (req, res) => {
   const { keyword } = req.body;
-
   try {
-    const { row } = await pool.query(
+    const { rows } = await pool.query(
       `
       SELECT * FROM content WHERE title ILIKE $1
       `,
       [`%${keyword}%`]
     );
 
-    res.status(200).json({ row });
+    res.status(200).json({ data: rows });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong on the server " });
   }
 };
 
 // save to draft
+// search post by tag
 
 // delete comment
 export const deleteComment = async (req, res) => {
@@ -217,7 +217,7 @@ export const deleteComment = async (req, res) => {
 
   try {
     await pool.query(
-      `DELETE FORM comments WHERE id = $1 AND commented_by =$2 `,
+      `DELETE FROM comments WHERE id = $1 AND commented_by =$2 `,
       [id, commented_by]
     );
     res.status(204).json({ message: "comment deleted successfully " });
@@ -240,7 +240,7 @@ export const deleteComment = async (req, res) => {
 //============================ =========== ==========================//
 
 export const postDraftPost = async (req, res, next) => {
-  const { title, body, image, tags, posted_by } = req?.body;
+  const { title, body, image, tags, created_by } = req?.body;
   try {
     const { rows } = await pool.query(
       `
@@ -263,7 +263,7 @@ export const postDraftPost = async (req, res, next) => {
     RETURNING *
     ;
     `,
-      [title, body, tags, image, posted_by]
+      [title, body, tags, image, created_by]
     );
 
     res.status(200).json({
@@ -272,7 +272,7 @@ export const postDraftPost = async (req, res, next) => {
         body: rows[0]?.body,
         tags: rows[0]?.tags,
         image: rows[0]?.image,
-        posted_by: rows[0]?.posted_by,
+        created_by: rows[0]?.created_by,
       },
     });
   } catch (error) {
@@ -285,7 +285,24 @@ export const postDraftPost = async (req, res, next) => {
 export const getDraftPosts = async (req, res) => {
   const { created_by, id } = req.body;
   try {
-    const { row } = await pool.query(
+    const { rows } = await pool.query(
+      `
+      SELECT * FROM draft_posts 
+         WHERE 
+            
+          created_by = $1
+      `,
+      [created_by]
+    );
+    res.status(200).json({ data: rows });
+  } catch (error) {
+    res.status(500).json({ message: "something went wrong" });
+  }
+};
+export const getDraftPost = async (req, res) => {
+  const { created_by, id } = req.body;
+  try {
+    const { rows } = await pool.query(
       `
       SELECT * FROM draft_posts 
          WHERE 
@@ -295,7 +312,7 @@ export const getDraftPosts = async (req, res) => {
       `,
       [id, created_by]
     );
-    res.status(200).json({ data: row });
+    res.status(200).json({ data: rows });
   } catch (error) {
     res.status(500).json({ message: "something went wrong" });
   }
@@ -304,10 +321,11 @@ export const getDraftPosts = async (req, res) => {
 export const editDraftPost = async (req, res) => {
   const { title, body, tags, image, created_by, id } = req.body;
   try {
-    const { row } = await pool.query(
+    const { rows } = await pool.query(
       `
       UPDATE draft_posts 
-        SET title = $3, 
+        SET 
+        title = $3, 
         body =$4, 
         tags =$5, 
         image = $6 
@@ -318,7 +336,7 @@ export const editDraftPost = async (req, res) => {
       [id, created_by, title, body, tags, image]
     );
 
-    res.status(200).json({ message: "draft updated successfully", data: row });
+    res.status(200).json({ message: "draft updated successfully", data: rows });
   } catch (error) {
     res.status(500).json({ message: "Ops something went wrong" });
   }
