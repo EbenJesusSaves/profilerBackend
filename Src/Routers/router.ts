@@ -5,6 +5,7 @@ import {
   deletePost,
   editDraftPost,
   editPost,
+  getDraftPost,
   getDraftPosts,
   postContent,
   postDraftPost,
@@ -21,7 +22,8 @@ router.post("/search_post", searchPost);
 router.delete("/delete_comment", deleteComment);
 
 //============ draft posts ===================//
-router.get("/draft_post", getDraftPosts);
+router.get("/draft_posts", getDraftPosts);
+router.get("/draft_post", getDraftPost);
 router.post("/draft_post", postDraftPost);
 router.delete("/delete_draft_post", deleteDraft);
 router.put("/edit_draft_post", editDraftPost);
