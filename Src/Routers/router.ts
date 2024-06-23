@@ -15,7 +15,7 @@ import {
 
 const router = Router();
 
-router.get("admin_posts", getAminPosts);
+router.get("/admin_posts/:posted_by", getAminPosts);
 router.post("/post", postContent);
 router.delete("/delete_post", deletePost);
 router.put("/edit_post", editPost);
