@@ -61,18 +61,20 @@ export const getPosts = async (req, res, next) => {
   }
 };
 export const getAminPosts = async (req, res, next) => {
-  const { title, body, image, tags, username } = req?.body;
+  const { posted_by } = req?.params;
+  console.log(posted_by);
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM content WHERE username = $1
+      `SELECT * FROM content WHERE posted_by = $1
     `,
-      [username]
+      [posted_by]
     );
     let data = rows;
     res.status(200).json({
       data,
     });
   } catch (error) {
+    console.log(error);
     res.status(401).json({
       message: "something rent wrong",
     });
@@ -163,7 +165,6 @@ export const getPost = async (req, res, next) => {
 
 export const emailNotification = async (req, res) => {
   const { clientAccount, clientEmail, clientSubject } = req?.body;
-
   await sendMail({ clientAccount, clientEmail, clientSubject });
   res.status(200).json({ message: "email received successfully" });
 };
