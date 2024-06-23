@@ -5,6 +5,7 @@ import {
   deletePost,
   editDraftPost,
   editPost,
+  getAminPosts,
   getDraftPost,
   getDraftPosts,
   postContent,
@@ -14,6 +15,7 @@ import {
 
 const router = Router();
 
+router.get("admin_posts", getAminPosts);
 router.post("/post", postContent);
 router.delete("/delete_post", deletePost);
 router.put("/edit_post", editPost);

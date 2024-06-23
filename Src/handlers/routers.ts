@@ -44,13 +44,29 @@ export const postContent = async (req, res, next) => {
   }
 };
 export const getPosts = async (req, res, next) => {
-  console.log("hi");
-
-  const { title, body, image, tags } = req?.body;
+  const { title, body, image, tags, username } = req?.body;
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM content
+      `SELECT * FROM content 
     `
+    );
+    let data = rows;
+    res.status(200).json({
+      data,
+    });
+  } catch (error) {
+    res.status(401).json({
+      message: "something rent wrong",
+    });
+  }
+};
+export const getAminPosts = async (req, res, next) => {
+  const { title, body, image, tags, username } = req?.body;
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM content WHERE username = $1
+    `,
+      [username]
     );
     let data = rows;
     res.status(200).json({
