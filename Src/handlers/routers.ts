@@ -62,7 +62,7 @@ export const getPosts = async (req, res, next) => {
 };
 export const getAminPosts = async (req, res, next) => {
   const { posted_by } = req?.params;
-  console.log(posted_by);
+
   try {
     const { rows } = await pool.query(
       `SELECT * FROM content WHERE posted_by = $1
@@ -171,7 +171,7 @@ export const emailNotification = async (req, res) => {
 
 // delete post
 export const deletePost = async (req, res) => {
-  const { id, posted_by } = req?.body;
+  const { id, posted_by } = req?.query;
   try {
     await pool.query(`DELETE FROM content where id= $1 AND posted_by = $2`, [
       id,
