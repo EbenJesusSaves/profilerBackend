@@ -2,7 +2,9 @@ import { sendMail } from "./email/email";
 import { pool } from "./user";
 
 export const postContent = async (req, res, next) => {
-  const { title, body, image, tags, posted_by, from } = req?.body;
+  const { title, body, image, tags, posted_by, from, id, created_by } =
+    req?.body;
+  console.log("hi");
   try {
     const { rows } = await pool.query(
       `
@@ -27,7 +29,9 @@ export const postContent = async (req, res, next) => {
     `,
       [title, body, tags, image, posted_by]
     );
-
+    if (from === "draft") {
+      await deleteDraftCore(id, created_by);
+    }
     res.status(200).json({
       data: {
         title: rows[0]?.title,
@@ -37,9 +41,7 @@ export const postContent = async (req, res, next) => {
         posted_by: rows[0]?.posted_by,
       },
     });
-    if (from === "draft") {
-      deleteDraft(req, res);
-    }
+    console.log("hi", from);
   } catch (error) {
     res.status(401).json({
       message: "something rent wrong",
@@ -362,9 +364,8 @@ export const editDraftPost = async (req, res) => {
   }
 };
 
-export const deleteDraft = async (req, res) => {
-  const { id, created_by } = req.query || req.body;
-
+// Core functionality extracted
+async function deleteDraftCore(id, created_by) {
   try {
     await pool.query(
       `
@@ -372,9 +373,22 @@ export const deleteDraft = async (req, res) => {
       `,
       [id, created_by]
     );
-    res.status(204).json({ message: "draft deleted successfully " });
+
+    return { success: true };
   } catch (error) {
-    res.status(500).json({ message: "Sorry something went wrong  " });
+    console.error("Error deleting draft:", error);
+    return { success: false, error: "Sorry something went wrong" };
+  }
+}
+
+// Modified route handler to use the core functionality
+export const deleteDraft = async (req, res) => {
+  const { id, created_by } = req.query;
+  const result = await deleteDraftCore(id, created_by);
+  if (result.success) {
+    res.status(204).json({ message: "draft deleted successfully " });
+  } else {
+    res.status(500).json({ message: result.error });
   }
 };
 
