@@ -24,7 +24,7 @@ router.post("/search_post", searchPost);
 router.delete("/delete_comment", deleteComment);
 
 //============ draft posts ===================//
-router.get("/draft_posts", getDraftPosts);
+router.get("/draft_posts/:created_by", getDraftPosts);
 router.get("/draft_post", getDraftPost);
 router.post("/draft_post", postDraftPost);
 router.delete("/delete_draft_post", deleteDraft);
