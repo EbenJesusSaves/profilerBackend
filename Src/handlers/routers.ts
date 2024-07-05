@@ -363,7 +363,7 @@ export const editDraftPost = async (req, res) => {
 };
 
 export const deleteDraft = async (req, res) => {
-  const { id, created_by } = req.query;
+  const { id, created_by } = req.query || req.body;
 
   try {
     await pool.query(
