@@ -300,7 +300,7 @@ export const postDraftPost = async (req, res, next) => {
 };
 
 export const getDraftPosts = async (req, res) => {
-  const { created_by, id } = req.body;
+  const { created_by, id } = req.params;
   try {
     const { rows } = await pool.query(
       `
