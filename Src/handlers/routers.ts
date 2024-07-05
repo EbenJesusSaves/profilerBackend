@@ -2,7 +2,7 @@ import { sendMail } from "./email/email";
 import { pool } from "./user";
 
 export const postContent = async (req, res, next) => {
-  const { title, body, image, tags, posted_by } = req?.body;
+  const { title, body, image, tags, posted_by, from } = req?.body;
   try {
     const { rows } = await pool.query(
       `
@@ -37,6 +37,9 @@ export const postContent = async (req, res, next) => {
         posted_by: rows[0]?.posted_by,
       },
     });
+    if (from === "draft") {
+      deleteDraft(req, res);
+    }
   } catch (error) {
     res.status(401).json({
       message: "something rent wrong",
@@ -360,7 +363,8 @@ export const editDraftPost = async (req, res) => {
 };
 
 export const deleteDraft = async (req, res) => {
-  const { id, created_by } = req.body;
+  const { id, created_by } = req.query;
+
   try {
     await pool.query(
       `
